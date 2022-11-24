@@ -19,49 +19,50 @@ class App extends Component {
     this.setState({
       number: 1,
       loader: 'onSubmit',
+      name: data,
     });
-    fetch(
-      `https://pixabay.com/api/?q=${data}&page=${this.state.number}&key=31516310-7380ad7b276f6caf864428c6c&image_type=photo&orientation=horizontal&per_page=12`
-    )
-      .then(response => {
-        return response.json();
-      })
-      .then(res => {
-        console.log(res);
-        this.setState({
-          calcCard: res.totalHits,
-        });
-        return this.setState({ response: res.hits, name: data });
-      });
+  };
 
-    setTimeout(() => {
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.name !== this.state.name) {
+      fetch(
+        `https://pixabay.com/api/?q=${this.state.name}&page=${this.state.number}&key=31516310-7380ad7b276f6caf864428c6c&image_type=photo&orientation=horizontal&per_page=12`
+      )
+        .then(response => {
+          return response.json();
+        })
+        .then(res => {
+          this.setState({
+            calcCard: res.totalHits,
+          });
+          return this.setState({ response: res.hits });
+        })
+        .catch(error => console.log(error));
       this.setState({
         loader: 'off',
       });
-    }, 1000);
-  };
+    } else if (prevState.number !== this.state.number) {
+      fetch(
+        `https://pixabay.com/api/?q=${this.state.name}&page=${this.state.number}&key=31516310-7380ad7b276f6caf864428c6c&image_type=photo&orientation=horizontal&per_page=12`
+      )
+        .then(response => response.json())
+        .then(res =>
+          this.setState(prevState => ({
+            response: [...prevState.response, ...res.hits],
+          }))
+        )
+        .catch(error => console.log(error));
+      this.setState({
+        loader: 'off',
+      });
+    }
+  }
 
   onClickLoadMore = () => {
     this.setState(prevState => ({
       number: prevState.number + 1,
       loader: 'onClick',
     }));
-    fetch(
-      `https://pixabay.com/api/?q=${this.state.name}&page=${
-        this.state.number + 1
-      }&key=31516310-7380ad7b276f6caf864428c6c&image_type=photo&orientation=horizontal&per_page=12`
-    )
-      .then(response => response.json())
-      .then(res =>
-        this.setState(prevState => ({
-          response: [...prevState.response, ...res.hits],
-        }))
-      )
-      .catch(error => console.log(error));
-
-    this.setState({
-      loader: 'off',
-    });
   };
 
   onItem = event => {
@@ -98,7 +99,7 @@ class App extends Component {
         <Searchbar submitSearch={this.onSupmit} />
 
         <ImageGalery
-          arrResponse={
+          objResponse={
             this.state.response.length !== 0 ? this.state : undefined
           }
           onItem={this.onItem}

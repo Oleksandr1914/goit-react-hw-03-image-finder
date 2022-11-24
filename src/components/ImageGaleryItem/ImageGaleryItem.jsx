@@ -4,25 +4,23 @@ import '../styles.css';
 
 class ImageGaleryItem extends Component {
   render() {
-    const { arrayCard, onItem } = this.props;
-
-    if (arrayCard) {
-      return arrayCard.response.map(el => (
-        <li className="ImageGalleryItem" key={el.id} onClick={onItem}>
-          <img
-            src={el.webformatURL}
-            alt={el.user}
-            name={el.largeImageURL}
-            className="ImageGalleryItem-image"
-          />
-        </li>
-      ));
-    }
+    const { objElement, onItem } = this.props;
+    // key={objElement.id}
+    return (
+      <li className="ImageGalleryItem" onClick={onItem}>
+        <img
+          src={objElement.webformatURL}
+          alt={objElement.user}
+          name={objElement.largeImageURL}
+          className="ImageGalleryItem-image"
+        />
+      </li>
+    );
   }
 }
 
 ImageGaleryItem.propTypes = {
-  arrayCard: PropTypes.object,
+  objElement: PropTypes.object,
   onItem: PropTypes.func,
 };
 

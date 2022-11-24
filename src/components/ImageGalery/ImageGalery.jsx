@@ -7,7 +7,7 @@ import '../styles.css';
 class ImageGalery extends Component {
   render() {
     const {
-      arrResponse,
+      objResponse,
       onItem,
       stateVis,
       cardName,
@@ -16,7 +16,11 @@ class ImageGalery extends Component {
     } = this.props;
     return (
       <ul className="ImageGallery">
-        <ImageGaleryItem arrayCard={arrResponse} onItem={onItem} />
+        {objResponse &&
+          objResponse.response.map(el => (
+            <ImageGaleryItem key={el.id} onItem={onItem} objElement={el} />
+          ))}
+
         {stateVis && (
           <Modal
             nameCard={cardName}
@@ -30,7 +34,7 @@ class ImageGalery extends Component {
 }
 
 ImageGalery.propTypes = {
-  arrResponse: PropTypes.object,
+  objResponse: PropTypes.object,
   onItem: PropTypes.func,
   stateVis: PropTypes.bool,
   cardName: PropTypes.string,
