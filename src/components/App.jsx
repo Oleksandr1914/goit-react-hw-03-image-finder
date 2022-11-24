@@ -9,41 +9,58 @@ class App extends Component {
     name: '',
     number: 1,
     response: [],
-    loader: false,
+    loader: 'off',
     visabiliti: false,
     card: '',
+    calcCard: null,
   };
 
   onSupmit = data => {
     this.setState({
       number: 1,
-      loader: true,
+      loader: 'onSubmit',
     });
     fetch(
       `https://pixabay.com/api/?q=${data}&page=${this.state.number}&key=31516310-7380ad7b276f6caf864428c6c&image_type=photo&orientation=horizontal&per_page=12`
     )
-      .then(response => response.json())
-      .then(res => this.setState({ response: res.hits, name: data }));
+      .then(response => {
+        return response.json();
+      })
+      .then(res => {
+        console.log(res);
+        this.setState({
+          calcCard: res.totalHits,
+        });
+        return this.setState({ response: res.hits, name: data });
+      });
 
-    this.setState({
-      loader: false,
-    });
+    setTimeout(() => {
+      this.setState({
+        loader: 'off',
+      });
+    }, 1000);
   };
 
   onClickLoadMore = () => {
     this.setState(prevState => ({
       number: prevState.number + 1,
-      loader: true,
+      loader: 'onClick',
     }));
     fetch(
-      `https://pixabay.com/api/?q=${this.state.name}&page=${this.state.number}&key=31516310-7380ad7b276f6caf864428c6c&image_type=photo&orientation=horizontal&per_page=12`
+      `https://pixabay.com/api/?q=${this.state.name}&page=${
+        this.state.number + 1
+      }&key=31516310-7380ad7b276f6caf864428c6c&image_type=photo&orientation=horizontal&per_page=12`
     )
       .then(response => response.json())
-      .then(res => this.setState({ response: res.hits }))
+      .then(res =>
+        this.setState(prevState => ({
+          response: [...prevState.response, ...res.hits],
+        }))
+      )
       .catch(error => console.log(error));
 
     this.setState({
-      loader: false,
+      loader: 'off',
     });
   };
 
@@ -67,7 +84,7 @@ class App extends Component {
   };
 
   render() {
-    if (this.state.loader) {
+    if (this.state.loader === 'onSubmit') {
       return (
         <>
           <Searchbar submitSearch={this.onSupmit} />
@@ -75,6 +92,7 @@ class App extends Component {
         </>
       );
     }
+
     return (
       <>
         <Searchbar submitSearch={this.onSupmit} />
@@ -91,7 +109,7 @@ class App extends Component {
         />
 
         {this.state.response.length !== 0 ? (
-          this.state.loader ? (
+          this.state.loader === 'onClick' ? (
             <Loader />
           ) : (
             <Button onClick={this.onClickLoadMore} />
